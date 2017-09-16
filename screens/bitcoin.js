@@ -21,10 +21,10 @@ class BoxView extends Component {
             <Animatable.View animation='fadeInUp' delay={1000}>
                 <TouchableOpacity onPress={onPress}>
                     <View style={{
-                        justifyContent: 'center', alignItems: 'center', width: width / 2.5, height: width / 2.5, backgroundColor: Colors.white, margin: 8, borderRadius: 32,
+                        justifyContent: 'center', alignItems: 'center', width: width / 3.5, height: width / 3.5, backgroundColor: Colors.white, margin: 4, borderRadius: 32,
                         borderWidth: 1, borderColor: Colors.main
                     }}>
-                        <Image source={source} style={{width: width / 3, height: width / 3}} />
+                        <Image source={source} style={{width: width / 5, height: width / 5}} />
 
                     </View>
                     <Text style={{ fontSize: 18, fontWeight: '500', color: Colors.subtitle, textAlign: 'center' }}>{text}</Text>
@@ -43,8 +43,9 @@ export default class QRScreen extends Component {
                 <Animatable.Text animation='fadeIn' duration={2000} style={{ color: Colors.text, fontWeight: '600', fontSize: 28 }}>Select an option below</Animatable.Text>
 
                 <View style={{ flexDirection: 'row', marginTop: 16 }}>
-                    <BoxView onPress={() => navigate('Scanner')} source={require('../assets/cards.png')} text='Pay' />
-                    <BoxView onPress={() => navigate('QR')} source={require('../assets/money.png')} text='Receive' />
+                    <BoxView onPress={() => navigate('Scanner')} source={require('../assets/cash-buy.png')} text='Buy' />
+                    <BoxView onPress={() => navigate('QR')} source={require('../assets/cash-sell.png')} text='Sell' />
+                    <BoxView onPress={() => navigate('QR')} source={require('../assets/cash-transfer.png')} text='Transfer' />
                 </View>
 
             </View>

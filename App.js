@@ -7,6 +7,8 @@ import LandingScreen from './screens/landing';
 import QRScreen from './screens/qrcode';
 import ScanScreen from './screens/scanner';
 import PayScreen from './screens/pay';
+import BitcoinScreen from './screens/bitcoin';
+import TransactionScreen from './screens/transactions';
 
 import FAB from './screens/fab';
 
@@ -18,10 +20,10 @@ var dashnavigation;
 
 export const DashNavigator = StackNavigator({
   Landing: {
-    screen: ({ screenProps, navigation }) => {
+    screen: ({ screenProps, params, navigation }) => {
       return (
         <View style={{ flex: 1 }}>
-          <LandingScreen />
+          <LandingScreen params={params} navigation={navigation}/>
           <FAB screenProps={screenProps} navigation={navigation} />
         </View>
       )
@@ -35,9 +37,15 @@ export const DashNavigator = StackNavigator({
   },
   QR: {
     screen: QRScreen
+  },
+  Bitcoin: {
+    screen: BitcoinScreen
+  },
+  Transaction: {
+    screen: TransactionScreen
   }
 }, {
-    initialRouteName: 'QR',
+    initialRouteName: 'Scanner',
     headerMode: 'none'
   })
 
@@ -51,7 +59,7 @@ const RootNavigator = StackNavigator({
   DashBoard: {
     screen: ({ navigation }) => (
       <View style={{ flex: 1 }}>
-        <StatusBar barStyle='light-content' />
+        <StatusBar barStyle='default' />
         <DashNavigator ref={nav => { this.navigator = nav; }} screenProps={{ rootNavigation: navigation }} />
       </View>
     )
