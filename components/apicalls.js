@@ -56,14 +56,14 @@ export async function getTransactions(bitcoin_id, bank_id) {
     var result4 = await response4.json();
 
     var finalresult = result1.concat(result2).concat(result3).concat(result4);
-    console.log(finalresult);
+    // console.log(finalresult);
     return finalresult;
   } catch (error) {
     console.error(error);
   }
 }
 
-export async function transfer(from, to, amount, description) {
+export async function transfer(from, to, amount, description, type) {
 
   // console.log(from, to, amount, description);
 
@@ -72,7 +72,7 @@ export async function transfer(from, to, amount, description) {
     payee_id: to,
     amount: parseFloat(amount),
     transaction_date: moment().format(),
-    description: description
+    description: `[${type}]${description}`
   }
 
   console.log(JSON.stringify(body));

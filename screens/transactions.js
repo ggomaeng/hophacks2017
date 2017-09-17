@@ -15,6 +15,10 @@ import ParallaxScrollView from 'react-native-parallax-scroll-view';
 
 import RowItem from '../components/rowitem';
 
+import moment from 'moment';
+
+import * as Animatable from 'react-native-animatable';
+
 import { getTransactions } from '../components/apicalls';
 
 
@@ -50,7 +54,15 @@ export default class Transaction extends Component {
 
         if ((payer_id == bitcoin_id || payer_id == bank_id) && (payee_id == bitcoin_id || payee_id == bank_id)) {
             //transfer to my self
-            return false;
+
+            if(payer_id == bitcoin_id) {
+                return false;
+            } 
+
+            if(payer_id == bank_id) {
+                return true;
+            }
+
         } else {
             if (payer_id == bitcoin_id || payee_id == bitcoin_id) return true;
             else return false;
@@ -68,12 +80,18 @@ export default class Transaction extends Component {
         const { bitcoin_id, bank_id } = this.state;
         const { payee_id, payer_id } = item;
 
-        return (payer_id == bitcoin_id || payer_id == bank_id) && (payee_id == bitcoin_id || payee_id == bank_id);
+        return (payer_id == bitcoin_id && payee_id == bank_id) || (payee_id == bitcoin_id && payer_id == bank_id);
 
     }
 
     render() {
         const { data, bitcoin_price } = this.state;
+
+        const sorted = data.sort(function(a,b){
+            // Turn your strings into dates, and then subtract them
+            // to get a value that is either negative, positive, or zero.
+            return moment(b) - moment(a);
+          });
 
         const content = data.length == 0 ?
             <View style={{ height: 400, justifyContent: 'center', alignItems: 'center' }}>
@@ -81,14 +99,14 @@ export default class Transaction extends Component {
             </View>
 
             : <FlatList
-                data={data}
+                data={sorted}
                 keyExtractor={this._keyExtractor}
                 renderItem={({ item }) => <RowItem paid={this.didPay(item)} bitcoin_price={bitcoin_price} converted={this.converted(item)} bitcoin={this.isBitcoin(item)} item={item} />}
             />
 
 
         return (
-            <View style={{ flex: 1 }}>
+            <Animatable.View animation='fadeIn' duration={2000} style={{ flex: 1 }}>
                 <StatusBar barStyle='light-content' />
                 <ParallaxScrollView
                     backgroundColor={Colors.main}
@@ -97,15 +115,15 @@ export default class Transaction extends Component {
                     fadeOutForeground={true}
                     renderForeground={() => (
                         <View style={{ height: 300, flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                            <Image source={require('../assets/chart.png')} />
-                            <Text style={{ color: Colors.white, fontSize: 36, fontWeight: '600' }}>
+                            <Animatable.Image animation={'fadeInUp'} delay={1000} source={require('../assets/chart.png')} />
+                            <Animatable.Text animation='fadeInUp' delay={1500} style={{ color: Colors.white, fontSize: 36, fontWeight: '600' }}>
                                 Transaction History
-                            </Text>
+                            </Animatable.Text>
                         </View>
                     )}>
                     {content}
                 </ParallaxScrollView>
-            </View>
+            </Animatable.View>
         )
     }
 }

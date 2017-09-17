@@ -33,16 +33,6 @@ export default class QRGen extends React.Component {
 
 
         if (amount && amount > 0 && bitcoin_id && bank_id) {
-            if (moneyIndex == 0 && (amount < 0 || amount > bitcoin_balance)) {
-                alert("Invalid amount");
-                return;
-            }
-
-            if (moneyIndex == 1 && (amount < 0 || amount > bank_balance)) {
-                alert("Invalid amount");
-                return;
-            }
-
             this.setState({ qrcodePressed: true });
 
         } else {

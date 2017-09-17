@@ -51,8 +51,9 @@ export default class Bitcoin extends React.Component {
             const from = moneyIndex == 0 ? bitcoin_id : bank_id;
             const id = moneyIndex == 0 ? bank_id : bitcoin_id;
             const amt = moneyIndex == 0 ? amount * bitcoin_price : amount;
+            const type = moneyIndex == 0 ? 'BTC' : 'USD';
 
-            transfer(from, id, amt, description)
+            transfer(from, id, amt, description, type)
                 .then(response => {
                     console.log(response);
                     if (response && response.code && response.code == 201) {

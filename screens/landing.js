@@ -52,47 +52,45 @@ export default class DashBoard extends Component {
     }
 
     componentDidMount() {
-        const { entries, bank_id, bitcoin_id } = this.state;
         this.initData()
             .then(r => {
-                this.update();
+                this.update(r.bitcoin_id, r.bank_id);
             }
             )
 
     }
 
-    update() {
-        const { entries, bank_id, bitcoin_id, bitcoin_price } = this.state;
+    update(bitcoin_id, bank_id) {
+        const { entries } = this.state;
+
 
         getBitcoinPrice()
             .then(response => {
                 const { price_usd } = response;
                 console.log("PRICE", price_usd);
-                this.setState({ price_usd, bitcoin_price: price_usd });
-
+                // this.setState({ price_usd, bitcoin_price: price_usd });
                 getAccountInfo(bitcoin_id)
                     .then(response => {
-                        const { balance } = response;
+                        const bitcoin_balance = response.balance;
                         // console.log("balance: ", balance);
-                        const money = (balance + "").split(',');
-                        entries[0].dollar = this.numberWithCommas(money[0]);
-                        entries[0].cent = money[1];
-                        this.setState({ entries, bitcoin_balance: balance / price_usd });
-                    })
+                        const bc_money = (bitcoin_balance + "").split(',');
+                        entries[1].dollar = bc_money[0];
+                        entries[1].cent = bc_money[1];
 
+                        getAccountInfo(bank_id)
+                            .then(response => {
+                                const bank_balance = response.balance;
+                                // console.log("balance: ", balance);
+                                const bk_money = (bank_balance + "").split(',');
+                                entries[1].dollar = bk_money[0];
+                                entries[1].cent = bk_money[1];
+                                this.setState({ entries, bitcoin_balance: bitcoin_balance / price_usd, bitcoin_price: price_usd, price_usd, bank_balance });
+                            })
 
-                getAccountInfo(bank_id)
-                    .then(response => {
-                        const { balance } = response;
-                        // console.log("balance: ", balance);
-                        const money = (balance + "").split(',');
-                        entries[1].dollar = this.numberWithCommas(money[0]);
-                        entries[1].cent = money[1];
-                        this.setState({ entries, bank_balance: balance });
                     })
             });
 
-            this.forceUpdate();
+        this.forceUpdate();
 
 
     }
@@ -211,6 +209,7 @@ export default class DashBoard extends Component {
     }
 
     render() {
+        const { bitcoin_id, bank_id } = this.state;
         return (
             <Animatable.View animation='fadeIn' duration={3000} style={{ flex: 1 }}>
                 <Image source={require('../assets/bg.png')} style={{ width, height }} >
@@ -219,7 +218,7 @@ export default class DashBoard extends Component {
                             data={this.state.entries}
                             renderItem={this._renderItem.bind(this)}
                             onSnapToItem={index => {
-                                this.update();
+                                this.update(bitcoin_id, bank_id);
                                 this.setState({ index })
                             }}
                             sliderWidth={width}

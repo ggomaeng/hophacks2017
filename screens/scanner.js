@@ -41,7 +41,7 @@ export default class Scanner extends React.Component {
     const from = type == 'BTC' ? bitcoin_id : bank_id;
 
     this.setState({ loading: true });
-    transfer(from, id, amount, description)
+    transfer(from, id, amount, description, type)
       .then(response => {
         console.log(response);
         if (response && response.code && response.code == 201) {
@@ -64,7 +64,7 @@ export default class Scanner extends React.Component {
     const { hasCameraPermission, visible, qrObject, bitcoin_id, bitcoin_price, paymentFinished, loading, displayLoading } = this.state;
 
     const amt = qrObject.type == 'USD' ? qrObject.amount : qrObject.amount / bitcoin_price;
-    const buttonText = paymentFinished ? 'Done' : `Pay ${qrObject.name} ${qrObject.type == 'USD' ? '$' : 'Ƀ'}${this.numberWithCommas(amt)}`
+    const buttonText = paymentFinished ? 'Done' : `Pay ${qrObject.name} ${qrObject.type == 'USD' ? '$' : 'Ƀ'}${amt}`
 
     const desc = qrObject.description
       ?
