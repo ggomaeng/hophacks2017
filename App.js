@@ -20,14 +20,7 @@ var dashnavigation;
 
 export const DashNavigator = StackNavigator({
   Landing: {
-    screen: ({ screenProps, params, navigation }) => {
-      return (
-        <View style={{ flex: 1 }}>
-          <LandingScreen params={params} navigation={navigation}/>
-          <FAB screenProps={screenProps} navigation={navigation} />
-        </View>
-      )
-    },
+    screen: LandingScreen,
   },
   Pay: {
     screen: PayScreen
@@ -45,7 +38,7 @@ export const DashNavigator = StackNavigator({
     screen: TransactionScreen
   }
 }, {
-    initialRouteName: 'Scanner',
+    initialRouteName: 'Landing',
     headerMode: 'none'
   })
 

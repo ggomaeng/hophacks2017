@@ -19,6 +19,10 @@ const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 export default class DashBoard extends Component {
 
     renderActionButton() {
+        const params = {
+
+        };
+        
         const payAction = NavigationActions.navigate({
             routeName: 'Pay',
             action: NavigationActions.navigate({ routeName: 'Pay' })

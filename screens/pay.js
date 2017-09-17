@@ -36,6 +36,8 @@ class BoxView extends Component {
 
 export default class QRScreen extends Component {
     render() {
+        console.log(this.props);
+        const {params} = this.props.navigation.state;
         const { navigate } = this.props.navigation;
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -43,8 +45,8 @@ export default class QRScreen extends Component {
                 <Animatable.Text animation='fadeIn' duration={2000} style={{ color: Colors.text, fontWeight: '600', fontSize: 28 }}>Select an option below</Animatable.Text>
 
                 <View style={{ flexDirection: 'row', marginTop: 16 }}>
-                    <BoxView onPress={() => navigate('Scanner')} source={require('../assets/cards.png')} text='Pay' />
-                    <BoxView onPress={() => navigate('QR')} source={require('../assets/money.png')} text='Receive' />
+                    <BoxView onPress={() => navigate('Scanner', params)} source={require('../assets/cards.png')} text='Pay' />
+                    <BoxView onPress={() => navigate('QR', params)} source={require('../assets/money.png')} text='Receive' />
                 </View>
 
             </View>

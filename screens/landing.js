@@ -40,41 +40,54 @@ export default class DashBoard extends Component {
         bank_id: ''
     }
 
+    componentWillMount() {
+        console.log('entering screen');
+
+    }
+    componentWillUnmount() {
+
+    }
+
     componentDidMount() {
         const { entries, bank_id, bitcoin_id } = this.state;
         this.initData()
             .then(r => {
-                getBitcoinPrice()
-                    .then(response => {
-                        const { price_usd } = response;
-                        console.log("PRICE", price_usd);
-                        this.setState({ price_usd });
-                    });
-
-                getAccountInfo(r.bitcoin_id)
-                    .then(response => {
-                        const { balance } = response;
-                        console.log("balance: ", balance);
-                        const money = (balance + "").split(',');
-                        entries[0].dollar = this.numberWithCommas(money[0]);
-                        entries[0].cent = money[1];
-                        this.setState({ entries });
-                    })
-
-
-                getAccountInfo(r.bank_id)
-                    .then(response => {
-                        const { balance } = response;
-                        console.log("balance: ", balance);
-                        const money = (balance + "").split(',');
-                        entries[1].dollar = this.numberWithCommas(money[0]);
-                        entries[1].cent = money[1];
-                        this.setState({ entries });
-                    })
-
-
+                this.update();
             }
             )
+
+    }
+
+    update() {
+        const { entries, bank_id, bitcoin_id } = this.state;
+
+        getBitcoinPrice()
+            .then(response => {
+                const { price_usd } = response;
+                console.log("PRICE", price_usd);
+                this.setState({ price_usd });
+            });
+
+        getAccountInfo(bitcoin_id)
+            .then(response => {
+                const { balance } = response;
+                console.log("balance: ", balance);
+                const money = (balance + "").split(',');
+                entries[0].dollar = this.numberWithCommas(money[0]);
+                entries[0].cent = money[1];
+                this.setState({ entries });
+            })
+
+
+        getAccountInfo(bank_id)
+            .then(response => {
+                const { balance } = response;
+                console.log("balance: ", balance);
+                const money = (balance + "").split(',');
+                entries[1].dollar = this.numberWithCommas(money[0]);
+                entries[1].cent = money[1];
+                this.setState({ entries });
+            })
 
     }
 
@@ -98,6 +111,57 @@ export default class DashBoard extends Component {
 
     numberWithCommas(x) {
         return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    renderActionButton() {
+        const { bitcoin_id, bank_id } = this.state;
+
+        const params = {
+            bitcoin_id,
+            bank_id,
+        };
+
+        const payAction = NavigationActions.navigate({
+            routeName: 'Pay',
+            action: NavigationActions.navigate({ routeName: 'Pay' }),
+            params
+        })
+
+        const bitcoinAction = NavigationActions.navigate({
+            routeName: 'Bitcoin',
+            action: NavigationActions.navigate({ routeName: 'Bitcoin' }),
+            params
+        })
+
+        const transAction = NavigationActions.navigate({
+            routeName: 'Transaction',
+            action: NavigationActions.navigate({ routeName: 'Transaction' }),
+            params
+        })
+
+        const resetAction = NavigationActions.reset({
+            index: 0,
+            actions: [NavigationActions.navigate({ routeName: 'Intro' })],
+        });
+
+        return (
+            <ActionButton
+                bgColor="rgba(0,0,0,0.5)"
+                degrees={90} icon={<Icon name="ios-more" style={[styles.actionButtonIcon, { color: 'white' }]} />} position="center" buttonColor={Colors.text}>
+                <ActionButton.Item buttonColor='#eee' onPress={() => this.props.navigation.dispatch(bitcoinAction)}>
+                    <Icon name="logo-bitcoin" style={styles.actionButtonIcon} />
+                </ActionButton.Item>
+                <ActionButton.Item buttonColor='#eee' onPress={() => this.props.navigation.dispatch(payAction)}>
+                    <Icon name="logo-usd" style={styles.actionButtonIcon} />
+                </ActionButton.Item>
+                <ActionButton.Item buttonColor='#eee' onPress={() => this.props.navigation.dispatch(transAction)}>
+                    <Icon name="ios-analytics" style={styles.actionButtonIcon} />
+                </ActionButton.Item>
+                <ActionButton.Item buttonColor='#eee' onPress={() => this.props.screenProps.rootNavigation.dispatch(resetAction)}>
+                    <Icon name="md-log-out" style={styles.actionButtonIcon} />
+                </ActionButton.Item>
+            </ActionButton>
+        )
     }
 
     _renderItem({ item, index }) {
@@ -134,7 +198,10 @@ export default class DashBoard extends Component {
                         <Carousel
                             data={this.state.entries}
                             renderItem={this._renderItem.bind(this)}
-                            onSnapToItem={index => this.setState({ index })}
+                            onSnapToItem={index => {
+                                this.update();
+                                this.setState({ index })
+                            }}
                             sliderWidth={width}
                             itemWidth={width} />
                     </View>
@@ -142,6 +209,7 @@ export default class DashBoard extends Component {
                     <View style={{ flex: 1 }}>
                     </View>
                 </Image>
+                {this.renderActionButton()}
             </Animatable.View>
         )
         return (

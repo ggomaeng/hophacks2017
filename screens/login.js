@@ -16,8 +16,8 @@ const { width, height } = Dimensions.get('window');
 export default class Login extends Component {
     state = {
         success: false,
-        bitcoin_id: 'kevin_bitcoin',
-        bank_id: 'kevin_usd',
+        bitcoin_id: 'sungwoo_bitcoin',
+        bank_id: 'sungwoo_usd',
         warning: ''
     }
 
