@@ -18,6 +18,9 @@ export default class QRGen extends React.Component {
         this.state = {
             bank_id: params.bank_id,
             bitcoin_id: params.bitcoin_id,
+            bank_balance: params.bank_balance,
+            bitcoin_balance: params.bitcoin_balance,
+            bitcoin_price: params.bitcoin_price,
             amount: '',
             desription: '',
             moneyIndex: 0,
@@ -26,9 +29,20 @@ export default class QRGen extends React.Component {
     }
 
     generateQR() {
-        const { bitcoin_id, bank_id, moneyIndex, description, amount, qrcodePressed } = this.state;
+        const { bitcoin_id, bank_id, bitcoin_balance, bank_balance, moneyIndex, description, amount, qrcodePressed } = this.state;
+
 
         if (amount && amount > 0 && bitcoin_id && bank_id) {
+            if (moneyIndex == 0 && (amount < 0 || amount > bitcoin_balance)) {
+                alert("Invalid amount");
+                return;
+            }
+
+            if (moneyIndex == 1 && (amount < 0 || amount > bank_balance)) {
+                alert("Invalid amount");
+                return;
+            }
+
             this.setState({ qrcodePressed: true });
 
         } else {
@@ -36,16 +50,20 @@ export default class QRGen extends React.Component {
         }
     }
 
+    numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
     render() {
-        const { bitcoin_id, bank_id, moneyIndex, description, amount, qrcodePressed } = this.state;
+        const { bitcoin_id, bank_id, bitcoin_balance, bank_balance, bitcoin_price, moneyIndex, description, amount, qrcodePressed } = this.state;
         if (qrcodePressed) {
-            const isKevin = data.kevin_bitcoin == bitcoin_id ;
+            const isKevin = data.kevin_bitcoin == bitcoin_id;
             const args = {
                 type: moneyIndex == 0 ? "BTC" : "USD",
                 id: moneyIndex == 0 ? bitcoin_id : bank_id,
                 name: isKevin ? 'Kevin Chae' : 'Sung Woo Park',
                 image: isKevin ? data.kevin_image : data.sungwoo_image,
-                amount,
+                amount: moneyIndex == 0 ? amount * bitcoin_price : amount,
                 description
             }
 
@@ -68,6 +86,7 @@ export default class QRGen extends React.Component {
             )
         }
 
+
         return (
             <KeyboardAvoidingView behavior='height' style={{ flex: 1 }}>
                 <Animatable.View animation='fadeIn' duration={2000} style={{ flex: 1 }}>
@@ -76,11 +95,13 @@ export default class QRGen extends React.Component {
                         <Animatable.View animation='flipInY' delay={300} duration={800} style={{ flexDirection: 'row' }}>
                             <TouchableOpacity onPress={() => this.setState({ moneyIndex: 0 })} style={{ marginRight: 32 }}>
                                 <Image source={require('../assets/cute-bitcoin.png')} style={{ width: 64, height: 64, opacity: moneyIndex == 0 ? 1 : .2 }} />
+                                <Text style={{ fontSize: 16, fontWeight: '600', color: Colors.subtitle, textAlign: 'center' }}>{bitcoin_balance.toFixed(2)}</Text>
                                 <Text style={{ fontSize: 24, fontWeight: '600', color: Colors.subtitle, textAlign: 'center' }}>BTC</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity onPress={() => this.setState({ moneyIndex: 1 })} style={{ marginLeft: 32 }}>
                                 <Image source={require('../assets/cute-dollar.png')} style={{ width: 64, height: 64, opacity: moneyIndex == 1 ? 1 : .2 }} />
+                                <Text style={{ fontSize: 16, fontWeight: '600', color: Colors.subtitle, textAlign: 'center' }}>{bank_balance.toFixed(2)}</Text>
                                 <Text style={{ fontSize: 24, fontWeight: '600', color: Colors.subtitle, textAlign: 'center' }}>USD</Text>
                             </TouchableOpacity>
                         </Animatable.View>

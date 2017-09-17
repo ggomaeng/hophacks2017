@@ -8,7 +8,7 @@ export async function getBitcoinPrice() {
   try {
     let response = await fetch(`${BITCOIN_PRICE_URL}`);
     let responseJson = await response.json();
-    console.log(responseJson[0]);
+    // console.log(responseJson[0]);
     return responseJson && responseJson[0];
   } catch (error) {
     console.error(error);
@@ -16,15 +16,16 @@ export async function getBitcoinPrice() {
 }
 
 
-function generateURL(path) {
-  return `${ENDPOINT_URL}/${path}?key=${API_KEY}`;
+function generateURL(path, morethanone) {
+  const more = morethanone ? '&' : '?';
+  return `${ENDPOINT_URL}/${path}${more}key=${API_KEY}`;
 }
 
 export async function getAccounts() {
   try {
     let response = await fetch(generateURL('accounts'));
     let responseJson = await response.json();
-    console.log(responseJson);
+    // console.log(responseJson);
     return responseJson;
   } catch (error) {
     console.error(error);
@@ -36,22 +37,25 @@ export async function getAccountInfo(id) {
   try {
     let response = await fetch(generateURL(`accounts/${id}`));
     let responseJson = await response.json();
-    console.log(responseJson);
+    // console.log(responseJson);
     return responseJson;
   } catch (error) {
     console.error(error);
   }
 }
 
-export async function getTransactions(id) {
+export async function getTransactions(bitcoin_id, bank_id) {
   try {
-    let response = await fetch(generateURL(`accounts/${id}/transfers?type=payer`));
-    let result1 = await response.json();
-    let response2 = await fetch(generateURL(`accounts/${id}/transfers?type=payee`));
-    let result2 = await response2.json();
+    var response = await fetch(generateURL(`accounts/${bitcoin_id}/transfers?type=payer`, true));
+    var result1 = await response.json();
+    var response2 = await fetch(generateURL(`accounts/${bitcoin_id}/transfers?type=payee`, true));
+    var result2 = await response2.json();
+    var response3 = await fetch(generateURL(`accounts/${bank_id}/transfers?type=payer`, true));
+    var result3 = await response3.json();
+    var response4 = await fetch(generateURL(`accounts/${bank_id}/transfers?type=payee`, true));
+    var result4 = await response4.json();
 
-    let finalresult = result1.concat(result2);
-
+    var finalresult = result1.concat(result2).concat(result3).concat(result4);
     console.log(finalresult);
     return finalresult;
   } catch (error) {
@@ -66,7 +70,7 @@ export async function transfer(from, to, amount, description) {
   const body = {
     medium: 'balance',
     payee_id: to,
-    amount: parseInt(amount),
+    amount: parseFloat(amount),
     transaction_date: moment().format(),
     description: description
   }

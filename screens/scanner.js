@@ -9,6 +9,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 import { transfer } from '../components/apicalls';
 
+const data = require('../constants/data.json');
+
 export default class Scanner extends React.Component {
   constructor(props) {
     super(props);
@@ -16,6 +18,7 @@ export default class Scanner extends React.Component {
     this.state = {
       bank_id: params.bank_id,
       bitcoin_id: params.bitcoin_id,
+      bitcoin_price: params.bitcoin_price,
       hasCameraPermission: null,
       visible: false,
       qrObject: {},
@@ -58,9 +61,10 @@ export default class Scanner extends React.Component {
   }
 
   renderModal() {
-    const { hasCameraPermission, visible, qrObject, paymentFinished, loading, displayLoading } = this.state;
+    const { hasCameraPermission, visible, qrObject, bitcoin_id, bitcoin_price, paymentFinished, loading, displayLoading } = this.state;
 
-    const buttonText = paymentFinished ? 'Done' : `Pay ${qrObject.name} ${qrObject.type == 'USD' ? '$' : 'Ƀ'}${this.numberWithCommas(qrObject.amount)}`
+    const amt = qrObject.type == 'USD' ? qrObject.amount : qrObject.amount / bitcoin_price;
+    const buttonText = paymentFinished ? 'Done' : `Pay ${qrObject.name} ${qrObject.type == 'USD' ? '$' : 'Ƀ'}${this.numberWithCommas(amt)}`
 
     const desc = qrObject.description
       ?
@@ -70,6 +74,8 @@ export default class Scanner extends React.Component {
     const indicator = <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} >
       <ActivityIndicator animating={true} color={Colors.mint} />
     </View>
+
+    const isKevin = bitcoin_id == data.kevin_bitcoin;
 
     const content = !paymentFinished ?
       <View style={{ flex: 1 }}>
@@ -85,14 +91,14 @@ export default class Scanner extends React.Component {
             padding: 4, color: Colors.text
           }}>
             <Text style={{ fontSize: 18, color: Colors.main }}>{qrObject.type == 'USD' ? '$' : 'Ƀ'}</Text>
-            <Text style={{ fontSize: 28 }}>{this.numberWithCommas(qrObject.amount)}</Text>
+            <Text style={{ fontSize: 28 }}>{this.numberWithCommas(amt)}</Text>
             <Text style={{ color: Colors.subtitle }}> {qrObject.type}</Text>
           </Text>
           <Image source={require('../assets/cash-sell.png')} style={{ width: 32, height: 32 }} />
         </View>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Image source={require('../assets/sungwoo.jpg')} style={{ borderWidth: 3, borderColor: Colors.text, width: 100, height: 100, borderRadius: 50 }} />
-          <Text style={{ fontSize: 20, marginTop: 8, fontWeight: '500', color: Colors.subtitle }}>Sung Woo Park</Text>
+          <Image source={{uri: isKevin ? data.kevin_image : data.sungwoo_image}} style={{ borderWidth: 3, borderColor: Colors.text, width: 100, height: 100, borderRadius: 50 }} />
+          <Text style={{ fontSize: 20, marginTop: 8, fontWeight: '500', color: Colors.subtitle }}>{isKevin ? 'Kevin Chae' : 'Sung Woo Park'}</Text>
         </View>
       </View>
       : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>

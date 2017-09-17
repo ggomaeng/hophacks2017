@@ -37,7 +37,10 @@ export default class DashBoard extends Component {
             }],
         price_usd: 1,
         bitcoin_id: '',
-        bank_id: ''
+        bitcoin_balance: 0,
+        bank_id: '',
+        bank_balance: 0,
+        bitcoin_price: 0
     }
 
     componentWillMount() {
@@ -59,35 +62,38 @@ export default class DashBoard extends Component {
     }
 
     update() {
-        const { entries, bank_id, bitcoin_id } = this.state;
+        const { entries, bank_id, bitcoin_id, bitcoin_price } = this.state;
 
         getBitcoinPrice()
             .then(response => {
                 const { price_usd } = response;
                 console.log("PRICE", price_usd);
-                this.setState({ price_usd });
+                this.setState({ price_usd, bitcoin_price: price_usd });
+
+                getAccountInfo(bitcoin_id)
+                    .then(response => {
+                        const { balance } = response;
+                        // console.log("balance: ", balance);
+                        const money = (balance + "").split(',');
+                        entries[0].dollar = this.numberWithCommas(money[0]);
+                        entries[0].cent = money[1];
+                        this.setState({ entries, bitcoin_balance: balance / price_usd });
+                    })
+
+
+                getAccountInfo(bank_id)
+                    .then(response => {
+                        const { balance } = response;
+                        // console.log("balance: ", balance);
+                        const money = (balance + "").split(',');
+                        entries[1].dollar = this.numberWithCommas(money[0]);
+                        entries[1].cent = money[1];
+                        this.setState({ entries, bank_balance: balance });
+                    })
             });
 
-        getAccountInfo(bitcoin_id)
-            .then(response => {
-                const { balance } = response;
-                console.log("balance: ", balance);
-                const money = (balance + "").split(',');
-                entries[0].dollar = this.numberWithCommas(money[0]);
-                entries[0].cent = money[1];
-                this.setState({ entries });
-            })
+            this.forceUpdate();
 
-
-        getAccountInfo(bank_id)
-            .then(response => {
-                const { balance } = response;
-                console.log("balance: ", balance);
-                const money = (balance + "").split(',');
-                entries[1].dollar = this.numberWithCommas(money[0]);
-                entries[1].cent = money[1];
-                this.setState({ entries });
-            })
 
     }
 
@@ -114,11 +120,14 @@ export default class DashBoard extends Component {
     }
 
     renderActionButton() {
-        const { bitcoin_id, bank_id } = this.state;
+        const { bitcoin_id, bitcoin_balance, bitcoin_price, bank_balance, bank_id } = this.state;
 
         const params = {
             bitcoin_id,
+            bitcoin_balance,
             bank_id,
+            bank_balance,
+            bitcoin_price
         };
 
         const payAction = NavigationActions.navigate({
@@ -165,9 +174,20 @@ export default class DashBoard extends Component {
     }
 
     _renderItem({ item, index }) {
-        const { price_usd } = this.state;
+        const { price_usd, bank_balance, bitcoin_price, bitcoin_balance } = this.state;
 
-        const cent = item.cent ? item.cent.toFixed(2) : "00";
+        var balance;
+        var d;
+        var c;
+        if (index == 0) {
+            balance = (bitcoin_balance + "").split('.');
+            d = parseInt(balance[0]);
+            c = parseFloat("." + balance[1]).toFixed(6).split('.')[1];
+        } else {
+            balance = (bank_balance + "").split('.');
+            d = this.numberWithCommas(balance[0]);
+            c = parseFloat("." + balance[1]).toFixed(2).split('.')[1];
+        }
         return (
             <View
                 style={{
@@ -181,8 +201,8 @@ export default class DashBoard extends Component {
                     <Text style={{ backgroundColor: 'transparent', color: Colors.text, fontWeight: '400', fontSize: 24, marginVertical: 8 }}>{item.title}</Text>
                     <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
                         <Image source={item.icon} style={{ marginTop: 4, width: 32, height: 32 }} />
-                        <Text style={{ backgroundColor: 'transparent', color: Colors.text, fontSize: 64, fontWeight: '700' }}>{item.dollar}</Text>
-                        <Text style={{ backgroundColor: 'transparent', paddingTop: 8, color: Colors.subtitle, fontSize: 16, fontWeight: '300' }}>.{cent}</Text>
+                        <Text style={{ backgroundColor: 'transparent', color: Colors.text, fontSize: 64, fontWeight: '700' }}>{d}</Text>
+                        <Text style={{ backgroundColor: 'transparent', paddingTop: 8, color: Colors.subtitle, fontSize: 16, fontWeight: '300' }}>.{c}</Text>
                     </View>
                     <Text style={{ backgroundColor: 'transparent', color: Colors.subtitle }}>1 BTC = ${price_usd} USD</Text>
                 </Animatable.View>
